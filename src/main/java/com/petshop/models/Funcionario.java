@@ -1,6 +1,10 @@
 package com.petshop.models;
 
+import jakarta.persistence.*;
+
+@Entity
 public class Funcionario extends Usuario {
+    @Column(unique = true)
     private String matricula;
 
     // Construtor

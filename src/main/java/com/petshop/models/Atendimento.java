@@ -1,14 +1,35 @@
 package com.petshop.models;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+@Entity
 public class Atendimento {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @ManyToOne
+    @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
+    
+    @ManyToOne
+    @JoinColumn(name = "pet_id", nullable = false)
     private Pet pet;
+    
+    @ManyToOne
+    @JoinColumn(name = "funcionario_id", nullable = false)
     private Funcionario funcionario;
+    
+    @ManyToOne
+    @JoinColumn(name = "servico_id", nullable = false)
     private Servico servico;
+    
+    @Column(nullable = false)
     private LocalDateTime dataHora;
+    
+    @Column(nullable = false)
     private String status;
     private boolean confirmado;
 

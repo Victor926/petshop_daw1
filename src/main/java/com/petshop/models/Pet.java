@@ -1,11 +1,22 @@
 package com.petshop.models;
 
+import jakarta.persistence.*;
+@Entity
 public class Pet {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @Column(nullable = false)
     private String nome;
+    
     private String especie;
     private String raca;
     private String porte;
+
+    @ManyToOne
+    @JoinColumn(name = "cliente_id")
     private Cliente dono;
 
     // Getters & Setters

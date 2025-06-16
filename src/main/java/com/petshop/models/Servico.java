@@ -1,8 +1,18 @@
 package com.petshop.models;
 
+import jakarta.persistence.*;
+
+@Entity
 public class Servico {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @Column(nullable = false)
     private String tipo; 
+    
+    @Column(nullable = false, precision = 10, scale = 2)
     private Double preco;
 
     // Getters & Setters

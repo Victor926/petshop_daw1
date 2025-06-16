@@ -86,7 +86,18 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<version>11.3.1</version>
+				<configuration>
+				<user>admin</user>
+				<password>12345</password>
+				<url>jdbc:postgresql://localhost:5432/testeflyway</url>
+				</configuration>
+			</plugin>
 		</plugins>
+		
 	</build>
 
 </project>
