@@ -1,6 +1,8 @@
 package com.petshop.models;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
+
 
 @Entity
 public class Servico {
@@ -13,7 +15,7 @@ public class Servico {
     private String tipo; 
     
     @Column(nullable = false, precision = 10, scale = 2)
-    private Double preco;
+    private BigDecimal preco; // Mudei de Double para BigDecimal
 
     // Getters & Setters
     public Long getId() {
@@ -32,11 +34,11 @@ public class Servico {
         this.tipo = tipo;
     }
 
-    public Double getPreco() {
+    public BigDecimal getPreco() {
         return preco;
     }
 
-    public void setPreco(Double preco) {
+    public void setPreco(BigDecimal preco) {
         this.preco = preco;
     }
 }

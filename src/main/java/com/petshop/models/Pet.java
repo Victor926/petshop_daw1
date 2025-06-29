@@ -56,7 +56,7 @@ public class Pet {
         return porte;
     }
 
-    public void setPorte(String Porte) {
+    public void setPorte(String porte) {
         this.porte = porte;
     }
 
