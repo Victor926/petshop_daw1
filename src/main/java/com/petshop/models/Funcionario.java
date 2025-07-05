@@ -13,6 +13,10 @@ public class Funcionario extends Usuario {
         this.matricula = matricula;
     }
 
+    public Funcionario(){
+        
+    }
+
     // Getter & Setter
     public String getMatricula() {
         return matricula;

@@ -22,6 +22,10 @@ public abstract class Usuario {
         this.nome = nome;
     }
 
+    public Usuario(){
+        
+    }
+
     // Getters & Setters
     public String getCpf() {
         return cpf;

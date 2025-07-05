@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Pets</title>
+    </head>
+<body>
+    <h1>Meus Pets</h1>
+
+    <div th:if="${mensagem}" style="color: green;">
+        <p th:text="${mensagem}"></p>
+    </div>
+    <div th:if="${erro}" style="color: red;">
+        <p th:text="${erro}"></p>
+    </div>
+
+    <p>
+        <a th:href="@{/cliente/{clienteCpf}/pets/novo(clienteCpf=${clienteCpf})}">Adicionar Novo Pet</a>
+    </p>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Espécie</th>
+                <th>Raça</th>
+                <th>Porte</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="pet : ${pets}">
+                <td th:text="${pet.id}"></td>
+                <td th:text="${pet.nome}"></td>
+                <td th:text="${pet.especie}"></td>
+                <td th:text="${pet.raca}"></td>
+                <td th:text="${pet.porte}"></td>
+                <td>
+                    <a th:href="@{/cliente/{clienteCpf}/pets/editar/{id}(clienteCpf=${clienteCpf}, id=${pet.id})}">Editar</a>
+                    |
+                    <a th:href="@{/cliente/{clienteCpf}/pets/deletar/{id}(clienteCpf=${clienteCpf}, id=${pet.id})}"
+                       onclick="return confirm('Tem certeza que deseja excluir este pet?');">Excluir</a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(pets)}">
+                <td colspan="6">Nenhum pet cadastrado.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <br>
+    <a th:href="@{/}" >Voltar para a Home</a>
+    </body>
+</html>

@@ -14,6 +14,10 @@ public class Cliente extends Usuario {
         super(cpf, nome);
     }
 
+    public Cliente() {
+
+    }
+
     // Adiciona um pet ao cliente
     public void adicionarPet(Pet pet) {
         pets.add(pet);
