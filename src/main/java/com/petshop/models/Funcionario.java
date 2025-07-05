@@ -1,7 +1,9 @@
 package com.petshop.models;
 
 import jakarta.persistence.*;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 @Entity
 public class Funcionario extends Usuario {
     @Column(unique = true)
@@ -11,10 +13,6 @@ public class Funcionario extends Usuario {
     public Funcionario(String cpf, String nome, String matricula) {
         super(cpf, nome);
         this.matricula = matricula;
-    }
-
-    public Funcionario(){
-        
     }
 
     // Getter & Setter
