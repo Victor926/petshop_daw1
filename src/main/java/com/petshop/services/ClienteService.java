@@ -1,66 +1,75 @@
 package com.petshop.services;
 
 import com.petshop.models.Cliente;
-import com.petshop.models.Usuario; // Importar Usuario
 import com.petshop.repositories.ClienteRepository;
-import com.petshop.repositories.UsuarioRepository; // Importar UsuarioRepository
-import org.springframework.security.crypto.password.PasswordEncoder; // Importar PasswordEncoder
+import com.petshop.repositories.UsuarioRepository;
+import com.petshop.repositories.PetRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // Para garantir que ambas as operações sejam atômicas
-
-import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ClienteService {
 
     private final ClienteRepository clienteRepository;
     private final UsuarioRepository usuarioRepository;
+    private final PetRepository petRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public ClienteService(ClienteRepository clienteRepository, UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+    public ClienteService(ClienteRepository clienteRepository,
+                          UsuarioRepository usuarioRepository,
+                          PetRepository petRepository,
+                          PasswordEncoder passwordEncoder) {
         this.clienteRepository = clienteRepository;
         this.usuarioRepository = usuarioRepository;
+        this.petRepository = petRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    // MÉTODO CADASTRARNOVOCLIENTE CORRIGIDO
+    // Método para auto-cadastro de cliente (mantido)
     @Transactional
-    public Cliente cadastrarNovoCliente(Cliente cliente, String password) {
-        if (cliente == null || cliente.getCpf() == null || cliente.getNome() == null || password == null) {
-            throw new IllegalArgumentException("Dados do cliente ou senha inválidos.");
+    public Cliente cadastrarNovoCliente(Cliente cliente, String senha) {
+        if (usuarioRepository.existsById(cliente.getCpf())) {
+            throw new IllegalArgumentException("CPF já cadastrado no sistema.");
         }
-
-        // 1. Verificar se o CPF já existe como USUARIO
-        // Agora que Cliente é um Usuario, podemos usar o findById do UsuarioRepository no CPF
-        if (usuarioRepository.findById(cliente.getCpf()).isPresent()) {
-            throw new IllegalArgumentException("CPF já cadastrado.");
-        }
-
-        // 2. Definir a senha CRIPTOGRAFADA DIRETAMENTE NO OBJETO CLIENTE
-        // Como Cliente herda de Usuario, ele tem o método setSenha()
-        cliente.setSenha(passwordEncoder.encode(password)); // Criptografar e definir a senha
-
-        // 3. Salvar o Cliente. O JPA/Hibernate cuidará de inserir os dados na tabela 'usuario'
-        // e na tabela 'cliente' automaticamente devido à herança e mapeamento.
+        cliente.setSenha(passwordEncoder.encode(senha));
         return clienteRepository.save(cliente);
     }
 
-    // O restante da classe permanece o mesmo: findClienteByCpf, findAll, save, deleteByCpf
+    // Listar todos os clientes (mantido)
+    public List<Cliente> findAllClientes() {
+        return clienteRepository.findAll();
+    }
+
+    // Buscar cliente por CPF (mantido)
     public Optional<Cliente> findClienteByCpf(String cpf) {
         return clienteRepository.findById(cpf);
     }
 
-    public List<Cliente> findAll() {
-        return clienteRepository.findAll();
+    // REMOVA OU COMENTE ESTE MÉTODO saveCliente, POIS A LÓGICA ESTÁ AGORA NO ClienteController
+    /*
+    @Transactional
+    public Cliente saveCliente(Cliente cliente, String novaSenha) {
+        // ... (lógica anterior de salvamento)
+        return null;
     }
+    */
 
-    public Cliente save(Cliente cliente) {
-        return clienteRepository.save(cliente);
-    }
+    // Deletar cliente (mantido, pois lida com pets e a parte Usuario)
+    @Transactional
+    public void deleteCliente(String cpf) {
+        Optional<Cliente> clienteOptional = clienteRepository.findById(cpf);
+        if (clienteOptional.isPresent()) {
+            Cliente clienteToDelete = clienteOptional.get();
 
-    public void deleteByCpf(String cpf) {
-        clienteRepository.deleteById(cpf);
-        usuarioRepository.deleteById(cpf); // Deleta da tabela 'usuario' também
+            // ANTES DE DELETAR O CLIENTE, DELETAR TODOS OS PETS ASSOCIADOS A ELE!
+            petRepository.deleteByDonoCpf(cpf); // Requer PetRepository e deleteByDonoCpf
+
+            clienteRepository.delete(clienteToDelete);
+        } else {
+            throw new IllegalArgumentException("Cliente com CPF " + cpf + " não encontrado para exclusão.");
+        }
     }
 }

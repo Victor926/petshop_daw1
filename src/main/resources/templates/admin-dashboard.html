@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard do Administrador</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header>
+        <h1>Bem-vindo ao Dashboard do Administrador!</h1>
+        <nav>
+            <ul>
+                <li><a th:href="@{/admin/funcionarios}">Gerenciar Funcionários</a></li>
+                <li><a th:href="@{/admin/servicos}">Gerenciar Serviços</a></li>
+                <li><a th:href="@{/admin/horarios}">Gerenciar Horários</a></li>
+                
+                <li><a th:href="@{/admin/clientes}">Gerenciar Clientes</a></li>
+                
+                <li sec:authorize="isAuthenticated()">
+                    <form th:action="@{/logout}" method="post" style="display:inline;">
+                        <input type="submit" value="Sair" class="btn-logout"/>
+                    </form>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Opções de Administração:</h2>
+        <p>Use os links acima para gerenciar o sistema.</p>
+    </main>
+
+    <footer>
+        <div sec:authorize="isAuthenticated()" style="float: right; margin-right: 20px;">
+            <form th:action="@{/logout}" method="post">
+                <input type="submit" value="Sair" style="padding: 8px 15px; background-color: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer;"/>
+            </form>
+        </div>
+        <p>&copy; 2025 Petshop - Administração</p>
+    </footer>
+</body>
+</html>

@@ -2,6 +2,9 @@ package com.petshop.controller;
 
 import com.petshop.models.Funcionario;
 import com.petshop.repositories.FuncionarioRepository; // Usaremos o repositório diretamente para simplicidade neste CRUD admin
+import com.petshop.repositories.HorarioDisponivelRepository;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,9 +18,15 @@ import java.util.Optional;
 public class FuncionarioController {
 
     private final FuncionarioRepository funcionarioRepository;
+    private final HorarioDisponivelRepository horarioDisponivelRepository;
+    private final PasswordEncoder passwordEncoder; // NOVO CAMPO
 
-    public FuncionarioController(FuncionarioRepository funcionarioRepository) {
+    public FuncionarioController(FuncionarioRepository funcionarioRepository,
+                                 HorarioDisponivelRepository horarioDisponivelRepository,
+                                 PasswordEncoder passwordEncoder) { // NOVO PARÂMETRO NO CONSTRUTOR
         this.funcionarioRepository = funcionarioRepository;
+        this.horarioDisponivelRepository = horarioDisponivelRepository;
+        this.passwordEncoder = passwordEncoder; // INJEÇÃO
     }
 
     // LISTAR TODOS OS FUNCIONÁRIOS
@@ -51,23 +60,45 @@ public class FuncionarioController {
     }
 
     // SALVAR/ATUALIZAR FUNCIONÁRIO (via POST)
-    // Ex: POST /admin/funcionarios/salvar
     @PostMapping("/salvar")
-    public String salvarFuncionario(@ModelAttribute Funcionario funcionario, RedirectAttributes redirectAttributes) {
+    public String salvarFuncionario(@ModelAttribute Funcionario funcionario,
+                                    @RequestParam(value = "senha", required = false) String senha, // Captura a senha do formulário
+                                    RedirectAttributes redirectAttributes) {
         try {
+            // Lógica para criptografar a senha e manter a existente se for edição
+            if (senha != null && !senha.isEmpty()) {
+                funcionario.setSenha(passwordEncoder.encode(senha)); // Criptografa a nova senha
+            } else if (funcionario.getCpf() != null && funcionarioRepository.existsById(funcionario.getCpf())) {
+                // Se for edição e a senha não foi fornecida, busca a senha existente do DB
+                String senhaExistente = funcionarioRepository.findById(funcionario.getCpf())
+                                                             .map(Funcionario::getSenha)
+                                                             .orElseThrow(() -> new IllegalArgumentException("Funcionário existente não encontrado para manter a senha."));
+                funcionario.setSenha(senhaExistente);
+            } else if (funcionario.getCpf() == null || senha == null || senha.isEmpty()) {
+                // Se for um novo funcionário, a senha é obrigatória
+                throw new IllegalArgumentException("A senha é obrigatória para um novo funcionário.");
+            }
+
             funcionarioRepository.save(funcionario);
             redirectAttributes.addFlashAttribute("mensagem", "Funcionário salvo com sucesso!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("erro", "Erro ao salvar funcionário: " + e.getMessage());
-            // Se for uma edição e o CPF existir, redireciona de volta ao formulário de edição
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("erro", e.getMessage());
             if (funcionario.getCpf() != null && funcionarioRepository.existsById(funcionario.getCpf())) {
                 return "redirect:/admin/funcionarios/editar/" + funcionario.getCpf();
             }
-            // Caso contrário, redireciona para o formulário de novo funcionário
+            return "redirect:/admin/funcionarios/novo";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("erro", "Erro ao salvar funcionário: " + e.getMessage());
+            // Para depuração, você pode querer logar a stack trace completa aqui.
+            // e.printStackTrace();
+            if (funcionario.getCpf() != null && funcionarioRepository.existsById(funcionario.getCpf())) {
+                return "redirect:/admin/funcionarios/editar/" + funcionario.getCpf();
+            }
             return "redirect:/admin/funcionarios/novo";
         }
-        return "redirect:/admin/funcionarios"; // Redireciona para a lista de funcionários após salvar
+        return "redirect:/admin/funcionarios";
     }
+
 
     // DELETAR FUNCIONÁRIO
     // Ex: GET /admin/funcionarios/deletar/{cpf} (Geralmente DELETE, mas GET para simplicidade inicial)

@@ -24,6 +24,13 @@
         <label for="matricula">Matrícula:</label><br>
         <input type="text" id="matricula" th:field="*{matricula}"><br><br>
 
+        <div>
+            <label for="senha">Senha:</label>
+            <input type="password" id="senha" name="senha"
+                th:placeholder="${funcionario.cpf != null ? 'Deixe em branco para manter a senha atual' : 'Digite a senha'}"
+                th:required="${funcionario.cpf == null}"/>
+        </div>
+
         <button type="submit" th:text="${funcionario.cpf == null ? 'Cadastrar' : 'Atualizar'}"></button>
     </form>
 
