@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Funcionários</title>
+    </head>
+<body>
+    <h1>Gerenciar Funcionários</h1>
+
+    <div th:if="${mensagem}" style="color: green;">
+        <p th:text="${mensagem}"></p>
+    </div>
+    <div th:if="${erro}" style="color: red;">
+        <p th:text="${erro}"></p>
+    </div>
+
+    <p>
+        <a th:href="@{/admin/funcionarios/novo}">Adicionar Novo Funcionário</a>
+    </p>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>CPF</th>
+                <th>Nome</th>
+                <th>Matrícula</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="funcionario : ${funcionarios}">
+                <td th:text="${funcionario.cpf}"></td>
+                <td th:text="${funcionario.nome}"></td>
+                <td th:text="${funcionario.matricula}"></td>
+                <td>
+                    <a th:href="@{/admin/funcionarios/editar/{cpf}(cpf=${funcionario.cpf})}">Editar</a>
+                    |
+                    <a th:href="@{/admin/funcionarios/deletar/{cpf}(cpf=${funcionario.cpf})}"
+                       onclick="return confirm('Tem certeza que deseja excluir este funcionário?');">Excluir</a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(funcionarios)}">
+                <td colspan="4">Nenhum funcionário cadastrado.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <br>
+    <a th:href="@{/}" >Voltar para a Home</a>
+    </body>
+</html>

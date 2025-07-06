@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Horários Disponíveis</title>
+    </head>
+<body>
+    <h1>Gerenciar Horários Disponíveis</h1>
+
+    <div th:if="${mensagem}" style="color: green;">
+        <p th:text="${mensagem}"></p>
+    </div>
+    <div th:if="${erro}" style="color: red;">
+        <p th:text="${erro}"></p>
+    </div>
+
+    <p>
+        <a th:href="@{/admin/horarios/novo}">Adicionar Novo Horário</a>
+    </p>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Funcionário</th>
+                <th>Serviço</th>
+                <th>Início</th>
+                <th>Fim</th>
+                <th>Ocupado</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="horario : ${horarios}">
+                <td th:text="${horario.id}"></td>
+                <td th:text="${horario.funcionario != null ? horario.funcionario.nome : 'N/A'}"></td>
+                <td th:text="${horario.servico != null ? horario.servico.tipo : 'Todos'}"></td>
+                <td th:text="${#temporals.format(horario.dataHoraInicio, 'dd/MM/yyyy HH:mm')}"></td>
+                <td th:text="${#temporals.format(horario.dataHoraFim, 'dd/MM/yyyy HH:mm')}"></td>
+                <td th:text="${horario.ocupado ? 'Sim' : 'Não'}"></td>
+                <td>
+                    <a th:href="@{/admin/horarios/editar/{id}(id=${horario.id})}">Editar</a>
+                    |
+                    <a th:href="@{/admin/horarios/deletar/{id}(id=${horario.id})}"
+                       onclick="return confirm('Tem certeza que deseja excluir este horário?');">Excluir</a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(horarios)}">
+                <td colspan="7">Nenhum horário disponível cadastrado.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <br>
+    <a th:href="@{/}" >Voltar para a Home</a>
+    </body>
+</html>

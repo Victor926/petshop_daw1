@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Serviços</title>
+    </head>
+<body>
+    <h1>Gerenciar Serviços</h1>
+
+    <div th:if="${mensagem}" style="color: green;">
+        <p th:text="${mensagem}"></p>
+    </div>
+    <div th:if="${erro}" style="color: red;">
+        <p th:text="${erro}"></p>
+    </div>
+
+    <p>
+        <a th:href="@{/admin/servicos/novo}">Adicionar Novo Serviço</a>
+    </p>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tipo de Serviço</th>
+                <th>Preço</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="servico : ${servicos}">
+                <td th:text="${servico.id}"></td>
+                <td th:text="${servico.tipo}"></td>
+                <td th:text="${#numbers.formatCurrency(servico.preco)}"></td>
+                <td>
+                    <a th:href="@{/admin/servicos/editar/{id}(id=${servico.id})}">Editar</a>
+                    |
+                    <a th:href="@{/admin/servicos/deletar/{id}(id=${servico.id})}"
+                       onclick="return confirm('Tem certeza que deseja excluir este serviço?');">Excluir</a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(servicos)}">
+                <td colspan="4">Nenhum serviço cadastrado.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <br>
+    <a th:href="@{/}" >Voltar para a Home</a>
+    </body>
+</html>

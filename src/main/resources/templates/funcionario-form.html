@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${funcionario.cpf == null ? 'Cadastrar Novo Funcionário' : 'Editar Funcionário'}"></title>
+    </head>
+<body>
+    <h1 th:text="${funcionario.cpf == null ? 'Cadastrar Novo Funcionário' : 'Editar Funcionário'}"></h1>
+
+    <div th:if="${erro}" style="color: red;">
+        <p th:text="${erro}"></p>
+    </div>
+
+    <form th:action="@{/admin/funcionarios/salvar}" th:object="${funcionario}" method="post">
+        <label for="cpf">CPF:</label><br>
+        <input type="text" id="cpf" th:field="*{cpf}" th:disabled="${funcionario.cpf != null}" required>
+        <input type="hidden" th:if="${funcionario.cpf != null}" th:field="*{cpf}" />
+        <br><br>
+
+        <label for="nome">Nome:</label><br>
+        <input type="text" id="nome" th:field="*{nome}" required><br><br>
+
+        <label for="matricula">Matrícula:</label><br>
+        <input type="text" id="matricula" th:field="*{matricula}"><br><br>
+
+        <button type="submit" th:text="${funcionario.cpf == null ? 'Cadastrar' : 'Atualizar'}"></button>
+    </form>
+
+    <br>
+    <a th:href="@{/admin/funcionarios}">Voltar para Gerenciar Funcionários</a>
+</body>
+</html>

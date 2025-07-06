@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Agendamentos</title>
+    </head>
+<body>
+    <h1>Meus Agendamentos</h1>
+
+    <div th:if="${mensagem}" style="color: green;">
+        <p th:text="${mensagem}"></p>
+    </div>
+    <div th:if="${erro}" style="color: red;">
+        <p th:text="${erro}"></p>
+    </div>
+
+    <p>
+        <a th:href="@{/cliente/{clienteCpf}/agendamentos/novo(clienteCpf=${clienteCpf})}">Agendar Novo Serviço</a>
+    </p>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Data e Hora</th>
+                <th>Pet</th>
+                <th>Serviço</th>
+                <th>Funcionário</th>
+                <th>Status</th>
+                <th>Confirmado</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="atendimento : ${atendimentos}">
+                <td th:text="${atendimento.id}"></td>
+                <td th:text="${#temporals.format(atendimento.dataHora, 'dd/MM/yyyy HH:mm')}"></td>
+                <td th:text="${atendimento.pet.nome}"></td>
+                <td th:text="${atendimento.servico.tipo}"></td>
+                <td th:text="${atendimento.funcionario.nome}"></td>
+                <td th:text="${atendimento.status}"></td>
+                <td th:text="${atendimento.confirmado ? 'Sim' : 'Não'}"></td>
+                <td>
+                    <a th:if="${atendimento.status != 'CANCELADO'}"
+                       th:href="@{/cliente/{clienteCpf}/agendamentos/cancelar/{id}(clienteCpf=${clienteCpf}, id=${atendimento.id})}"
+                       onclick="return confirm('Tem certeza que deseja cancelar este agendamento?');">Cancelar</a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(atendimentos)}">
+                <td colspan="8">Nenhum agendamento encontrado.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <br>
+    <a th:href="@{/cliente/{clienteCpf}/pets(clienteCpf=${clienteCpf})}">Meus Pets</a> |
+    <a th:href="@{/}" >Voltar para a Home</a>
+</body>
+</html>

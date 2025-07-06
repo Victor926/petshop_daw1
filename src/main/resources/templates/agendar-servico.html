@@ -1,11 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+    <title>Agendar Novo Serviço</title>
+    </head>
 <body>
-    
+    <h1>Agendar Novo Serviço</h1>
+
+    <div th:if="${mensagem}" style="color: green;">
+        <p th:text="${mensagem}"></p>
+    </div>
+    <div th:if="${erro}" style="color: red;">
+        <p th:text="${erro}"></p>
+    </div>
+
+    <form th:action="@{/cliente/{clienteCpf}/agendamentos/salvar(clienteCpf=${clienteCpf})}" method="post">
+        <input type="hidden" name="clienteCpf" th:value="${clienteCpf}" />
+
+        <label for="petId">Meu Pet:</label><br>
+        <select id="petId" name="petId" required>
+            <option value="">Selecione um Pet</option>
+            <option th:each="pet : ${pets}" th:value="${pet.id}" th:text="${pet.nome + ' (' + pet.especie + ')'}"></option>
+        </select><br><br>
+
+        <label for="horarioDisponivelId">Horário Disponível:</label><br>
+        <select id="horarioDisponivelId" name="horarioDisponivelId" required>
+            <option value="">Selecione um Horário</option>
+            <option th:each="horario : ${horariosDisponiveis}"
+                    th:value="${horario.id}"
+                    th:text="${#temporals.format(horario.dataHoraInicio, 'dd/MM/yyyy HH:mm') + ' - ' + horario.funcionario.nome + (horario.servico != null ? ' (' + horario.servico.tipo + ')' : '')}"></option>
+        </select>
+        <br><br>
+
+        <button type="submit">Agendar Serviço</button>
+    </form>
+
+    <br>
+    <a th:href="@{/cliente/{clienteCpf}/pets(clienteCpf=${clienteCpf})}">Meus Pets</a> |
+    <a th:href="@{/cliente/{clienteCpf}/agendamentos(clienteCpf=${clienteCpf})}">Meus Agendamentos</a> |
+    <a th:href="@{/}" >Voltar para a Home</a>
 </body>
 </html>

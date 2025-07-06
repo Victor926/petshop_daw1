@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${horario.id == null ? 'Cadastrar Novo Horário Disponível' : 'Editar Horário Disponível'}"></title>
+    </head>
+<body>
+    <h1 th:text="${horario.id == null ? 'Cadastrar Novo Horário Disponível' : 'Editar Horário Disponível'}"></h1>
+
+    <div th:if="${erro}" style="color: red;">
+        <p th:text="${erro}"></p>
+    </div>
+
+    <form th:action="@{/admin/horarios/salvar}" th:object="${horario}" method="post">
+        <input type="hidden" th:field="*{id}" />
+        <input type="hidden" th:field="*{ocupado}" />
+
+        <label for="funcionarioCpf">Funcionário:</label><br>
+        <select id="funcionarioCpf" name="funcionarioCpf" required>
+            <option value="">Selecione um Funcionário</option>
+            <option th:each="funcionario : ${funcionarios}"
+                    th:value="${funcionario.cpf}"
+                    th:text="${funcionario.nome}"
+                    th:selected="${horario.funcionario != null and horario.funcionario.cpf == funcionario.cpf}"></option>
+        </select><br><br>
+
+        <label for="servicoId">Serviço (Opcional):</label><br>
+        <select id="servicoId" name="servicoId">
+            <option value="">Para todos os serviços</option>
+            <option th:each="servico : ${servicos}"
+                    th:value="${servico.id}"
+                    th:text="${servico.tipo}"
+                    th:selected="${horario.servico != null and horario.servico.id == servico.id}"></option>
+        </select><br><br>
+
+        <label for="dataHoraInicioString">Data e Hora de Início:</label><br>
+        <input type="datetime-local" id="dataHoraInicioString" name="dataHoraInicioString" required
+               th:value="${horario.dataHoraInicio != null ? #temporals.format(horario.dataHoraInicio, 'yyyy-MM-dd''T''HH:mm') : ''}"><br><br>
+
+        <label for="dataHoraFimString">Data e Hora de Fim:</label><br>
+        <input type="datetime-local" id="dataHoraFimString" name="dataHoraFimString" required
+               th:value="${horario.dataHoraFim != null ? #temporals.format(horario.dataHoraFim, 'yyyy-MM-dd''T''HH:mm') : ''}"><br><br>
+
+        <button type="submit" th:text="${horario.id == null ? 'Cadastrar' : 'Atualizar'}"></button>
+    </form>
+
+    <br>
+    <a th:href="@{/admin/horarios}">Voltar para Gerenciar Horários</a>
+</body>
+</html>

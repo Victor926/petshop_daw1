@@ -1,11 +1,80 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Cadastro de Cliente</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f4f4; }
+        .cadastro-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+        .cadastro-container h1 { text-align: center; color: #333; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input[type="text"],
+        .form-group input[type="password"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-group button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745; /* Cor para cadastro */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .form-group button:hover { background-color: #218838; }
+        .error-message { color: red; margin-bottom: 15px; text-align: center; }
+        .link-login { margin-top: 20px; font-size: 14px; text-align: center; }
+    </style>
 </head>
 <body>
-    
+    <div class="cadastro-container">
+        <h1>Cadastro de Cliente</h1>
+
+        <div th:if="${erro}" class="error-message">
+            <p th:text="${erro}"></p>
+        </div>
+        <div th:if="${mensagem}" style="color: green; margin-bottom: 15px; text-align: center;">
+            <p th:text="${mensagem}"></p>
+        </div>
+
+        <form th:action="@{/cadastro/cliente}" th:object="${cliente}" method="post">
+            <div class="form-group">
+                <label for="cpf">CPF:</label>
+                <input type="text" id="cpf" th:field="*{cpf}" required>
+            </div>
+            <div class="form-group">
+                <label for="nome">Nome Completo:</label>
+                <input type="text" id="nome" th:field="*{nome}" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Senha:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Cadastrar</button>
+            </div>
+        </form>
+
+        <div class="link-login">
+            <p>Já tem uma conta? <a th:href="@{/login}">Faça Login</a></p>
+            <p><a th:href="@{/}">Voltar para a Home</a></p>
+        </div>
+    </div>
 </body>
 </html>
