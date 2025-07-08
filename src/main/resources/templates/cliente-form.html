@@ -52,12 +52,16 @@
     <main>
         <div th:if="${erro}" class="alert alert-danger" th:text="${erro}"></div>
 
-        <form th:action="@{/admin/clientes/salvar}" th:object="${cliente}" method="post">
-            <input type="hidden" th:field="*{cpf}" th:if="${cliente.cpf != null}" />
-
+        <form th:object="${cliente}" 
+              th:action="${cliente.cpf != null ? '/admin/clientes/editar/' + cliente.cpf : '/admin/clientes/novo'}" 
+              method="post">
+            
             <div>
                 <label for="cpf">CPF:</label>
-                <input type="text" id="cpf" th:field="*{cpf}" required th:attr="readonly=${cliente.cpf != null}"/>
+                <input type="text" id="cpf" th:field="*{cpf}" 
+                       th:readonly="${cliente.cpf != null}" 
+                       th:required="${cliente.cpf == null}"/>
+                <small class="form-text text-muted" th:if="${cliente.cpf != null}">CPF não pode ser alterado após a criação.</small>
             </div>
 
             <div>
@@ -66,9 +70,12 @@
             </div>
 
             <div>
-                <label for="senha">Senha:</label>
+                <label for="senha">Senha: 
+                    <span th:if="${cliente.cpf == null}" class="text-danger">*</span>
+                    <span th:if="${cliente.cpf != null}" class="text-muted">(Deixe em branco para manter a senha atual)</span>
+                </label>
                 <input type="password" id="senha" name="senha"
-                       th:placeholder="${cliente.cpf != null ? 'Deixe em branco para manter a senha atual' : 'Digite a senha'}"
+                       th:placeholder="${cliente.cpf == null ? 'Senha (obrigatória para novo cliente)' : 'Nova Senha (opcional)'}"
                        th:required="${cliente.cpf == null}"/>
             </div>
 

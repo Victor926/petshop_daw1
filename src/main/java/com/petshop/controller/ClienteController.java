@@ -52,111 +52,117 @@ public class ClienteController {
         return "cliente-form";
     }
 
+    // NOVO MÉTODO: SALVAR NOVO CLIENTE
+    @PostMapping("/novo") // Altera o path para /novo para indicar criação
+    @Transactional
+    public String criarNovoCliente(@ModelAttribute Cliente clienteDoFormulario,
+                                   @RequestParam("senha") String senha, // Senha é obrigatória na criação
+                                   RedirectAttributes redirectAttributes) {
+        try {
+            System.out.println("--- DEBUG CRIAÇÃO NOVO CLIENTE INÍCIO ---");
+            System.out.println("CPF do Formulário: " + clienteDoFormulario.getCpf());
+
+            // Validação de CPF duplicado
+            if (usuarioRepository.existsById(clienteDoFormulario.getCpf())) {
+                System.out.println("Erro: CPF já cadastrado como Usuário.");
+                throw new IllegalArgumentException("CPF já cadastrado no sistema. Por favor, use outro CPF.");
+            }
+            if (senha == null || senha.isEmpty()) {
+                System.out.println("Erro: Senha obrigatória para novo cliente.");
+                throw new IllegalArgumentException("A senha é obrigatória para um novo cliente.");
+            }
+
+            Cliente novoCliente = new Cliente();
+            novoCliente.setCpf(clienteDoFormulario.getCpf());
+            novoCliente.setNome(clienteDoFormulario.getNome());
+            novoCliente.setSenha(passwordEncoder.encode(senha)); // Criptografa a senha
+
+            clienteRepository.save(novoCliente);
+            redirectAttributes.addFlashAttribute("mensagem", "Cliente cadastrado com sucesso!");
+            System.out.println("--- FIM DEBUG CRIAÇÃO NOVO CLIENTE ---");
+        } catch (IllegalArgumentException e) {
+            System.err.println("Capturado IllegalArgumentException (Criação): " + e.getMessage());
+            redirectAttributes.addFlashAttribute("erro", "Erro ao cadastrar cliente: " + e.getMessage());
+            return "redirect:/admin/clientes/novo"; // Volta para o formulário de novo
+        } catch (Exception e) {
+            System.err.println("Capturado Exception (Criação): " + e.getMessage());
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("erro", "Erro interno ao cadastrar cliente: " + e.getMessage());
+            return "redirect:/admin/clientes/novo";
+        }
+        return "redirect:/admin/clientes";
+    }
+
     // EXIBIR FORMULÁRIO PARA EDITAR CLIENTE
     @GetMapping("/editar/{cpf}")
     public String exibirFormularioEditarCliente(@PathVariable String cpf, Model model) {
         Optional<Cliente> cliente = clienteService.findClienteByCpf(cpf);
         if (cliente.isPresent()) {
             model.addAttribute("cliente", cliente.get());
+            // Não passamos a senha no model para o formulário por segurança
             return "cliente-form";
         }
         return "redirect:/admin/clientes";
     }
 
-    // SALVAR/ATUALIZAR CLIENTE (via POST) - LÓGICA ATUALIZADA PARA NÃO DUPLICAR (COM DEBUG)
-    @PostMapping("/salvar")
+    // NOVO MÉTODO: ATUALIZAR CLIENTE EXISTENTE
+    @PostMapping("/editar/{cpf}") // Altera o path para /editar/{cpf} para indicar edição
     @Transactional
-    public String salvarCliente(@ModelAttribute Cliente clienteDoFormulario,
-                                @RequestParam(value = "senha", required = false) String senha,
-                                RedirectAttributes redirectAttributes) {
+    public String atualizarCliente(@PathVariable String cpf,
+                                   @ModelAttribute Cliente clienteDoFormulario,
+                                   @RequestParam(value = "senha", required = false) String senha, // Senha opcional na edição
+                                   RedirectAttributes redirectAttributes) {
         try {
-            // --- INÍCIO DEBUG CLIENTE SALVAR NO CONTROLLER ---
-            System.out.println("--- DEBUG CLIENTE SALVAR INÍCIO ---");
-            System.out.println("CPF do Formulário (clienteDoFormulario.getCpf()): " + clienteDoFormulario.getCpf());
-            System.out.println("Nome do Formulário (clienteDoFormulario.getNome()): " + clienteDoFormulario.getNome());
+            System.out.println("--- DEBUG EDIÇÃO CLIENTE INÍCIO ---");
+            System.out.println("CPF do Path: " + cpf);
+            System.out.println("Nome do Formulário: " + clienteDoFormulario.getNome());
             System.out.println("Senha do Formulário (variável 'senha'): " + (senha != null && !senha.isEmpty() ? "******" : "[VAZIA]"));
 
-            Optional<Cliente> clienteExistenteOptional = clienteRepository.findById(clienteDoFormulario.getCpf());
-            System.out.println("Cliente Existente Optional Presente? " + clienteExistenteOptional.isPresent());
+            Optional<Cliente> clienteExistenteOptional = clienteRepository.findById(cpf);
 
-            Cliente clienteAAtualizar; // Esta será a entidade que será salva (existente ou nova)
-
-            if (clienteExistenteOptional.isPresent()) {
-                System.out.println("Caminho: EDIÇÃO DE CLIENTE EXISTENTE NO DB.");
-                clienteAAtualizar = clienteExistenteOptional.get();
-                System.out.println("Hash de Identidade clienteAAtualizar (do DB): " + System.identityHashCode(clienteAAtualizar));
-                System.out.println("Hash de Identidade clienteExistenteOptional.get(): " + System.identityHashCode(clienteExistenteOptional.get()));
-                
-                // Atualizar APENAS os campos do cliente gerenciado com os dados do formulário
-                clienteAAtualizar.setNome(clienteDoFormulario.getNome()); 
-
-                // Lógica da senha para edição
-                if (senha != null && !senha.isEmpty()) {
-                    clienteAAtualizar.setSenha(passwordEncoder.encode(senha)); // Criptografa nova senha
-                    System.out.println("Senha atualizada para clienteAAtualizar.");
-                } else {
-                    System.out.println("Senha mantida para clienteAAtualizar (vinda do DB).");
-                }
-                
-                // Validação para impedir que um Cliente seja transformado em Funcionario por aqui
-                if (usuarioRepository.existsById(clienteDoFormulario.getCpf())) {
-                    if (usuarioRepository.findById(clienteDoFormulario.getCpf()).get() instanceof com.petshop.models.Funcionario) {
-                        System.out.println("Erro: CPF existe como Funcionário.");
-                        throw new IllegalArgumentException("CPF já cadastrado como Funcionário. Não é possível editar como Cliente.");
-                    }
-                }
-
-            } else {
-                System.out.println("Caminho: CRIAÇÃO DE NOVO CLIENTE (CPF não encontrado no DB).");
-                // É uma CRIAÇÃO de um NOVO cliente:
-                if (senha == null || senha.isEmpty()) {
-                    System.out.println("Erro: Senha obrigatória para novo cliente.");
-                    throw new IllegalArgumentException("A senha é obrigatória para um novo cliente.");
-                }
-                // Validação de CPF duplicado ao criar
-                if (usuarioRepository.existsById(clienteDoFormulario.getCpf())) {
-                    System.out.println("Erro: CPF já cadastrado como Usuário.");
-                    throw new IllegalArgumentException("CPF já cadastrado no sistema. Por favor, use outro CPF.");
-                }
-                
-                clienteAAtualizar = new Cliente(); // Cria uma nova instância de Cliente
-                clienteAAtualizar.setCpf(clienteDoFormulario.getCpf());
-                clienteAAtualizar.setNome(clienteDoFormulario.getNome());
-                clienteAAtualizar.setSenha(passwordEncoder.encode(senha)); // Criptografa a senha para o novo cliente
-                System.out.println("Nova instância de Cliente criada com CPF: " + clienteAAtualizar.getCpf());
-                System.out.println("Hash de Identidade clienteAAtualizar (nova instância): " + System.identityHashCode(clienteAAtualizar));
+            if (clienteExistenteOptional.isEmpty()) {
+                System.out.println("Erro: Cliente não encontrado para edição.");
+                throw new IllegalArgumentException("Cliente não encontrado para edição.");
             }
 
-            System.out.println("STATUS FINAL ANTES DO SAVE - CPF: " + clienteAAtualizar.getCpf());
-            System.out.println("STATUS FINAL ANTES DO SAVE - Nome: " + clienteAAtualizar.getNome());
-            System.out.println("STATUS FINAL ANTES DO SAVE - Tipo: " + clienteAAtualizar.getClass().getSimpleName());
-            System.out.println("STATUS FINAL ANTES DO SAVE - Hash: " + System.identityHashCode(clienteAAtualizar));
-            System.out.println("--- FIM DEBUG CLIENTE SALVAR ---");
-            // --- FIM DEBUG ---
+            Cliente clienteAAtualizar = clienteExistenteOptional.get();
+            System.out.println("Caminho: EDIÇÃO DE CLIENTE EXISTENTE NO DB.");
+
+            // Validação para impedir que um Cliente seja transformado em Funcionario por aqui
+            if (usuarioRepository.existsById(cpf)) {
+                if (usuarioRepository.findById(cpf).get() instanceof com.petshop.models.Funcionario) {
+                    System.out.println("Erro: CPF existe como Funcionário.");
+                    throw new IllegalArgumentException("CPF já cadastrado como Funcionário. Não é possível editar como Cliente.");
+                }
+            }
+
+            // Atualizar APENAS os campos do cliente gerenciado com os dados do formulário
+            clienteAAtualizar.setNome(clienteDoFormulario.getNome());
+
+            // Lógica da senha para edição
+            if (senha != null && !senha.isEmpty()) {
+                clienteAAtualizar.setSenha(passwordEncoder.encode(senha)); // Criptografa nova senha
+                System.out.println("Senha atualizada.");
+            } else {
+                System.out.println("Senha mantida (vinda do DB).");
+            }
 
             clienteRepository.save(clienteAAtualizar); // Salva a entidade
-
-            redirectAttributes.addFlashAttribute("mensagem", "Cliente salvo com sucesso!");
+            redirectAttributes.addFlashAttribute("mensagem", "Cliente atualizado com sucesso!");
+            System.out.println("--- FIM DEBUG EDIÇÃO CLIENTE ---");
 
         } catch (IllegalArgumentException e) {
-            System.err.println("Capturado IllegalArgumentException: " + e.getMessage()); // Debug de erro
-            redirectAttributes.addFlashAttribute("erro", "Erro ao salvar cliente: " + e.getMessage());
-            if (clienteDoFormulario.getCpf() != null && clienteRepository.existsById(clienteDoFormulario.getCpf())) {
-                return "redirect:/admin/clientes/editar/" + clienteDoFormulario.getCpf();
-            }
-            return "redirect:/admin/clientes/novo";
+            System.err.println("Capturado IllegalArgumentException (Edição): " + e.getMessage());
+            redirectAttributes.addFlashAttribute("erro", "Erro ao atualizar cliente: " + e.getMessage());
+            return "redirect:/admin/clientes/editar/" + cpf; // Volta para o formulário de edição
         } catch (Exception e) {
-            System.err.println("Capturado Exception: " + e.getMessage()); // Debug de erro
-            e.printStackTrace(); // MUITO IMPORTANTE MANTER PARA VER O ERRO REAL
-            redirectAttributes.addFlashAttribute("erro", "Erro interno ao salvar cliente: " + e.getMessage());
-            if (clienteDoFormulario.getCpf() != null && clienteRepository.existsById(clienteDoFormulario.getCpf())) {
-                return "redirect:/admin/clientes/editar/" + clienteDoFormulario.getCpf();
-            }
-            return "redirect:/admin/clientes/novo";
+            System.err.println("Capturado Exception (Edição): " + e.getMessage());
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("erro", "Erro interno ao atualizar cliente: " + e.getMessage());
+            return "redirect:/admin/clientes/editar/" + cpf;
         }
         return "redirect:/admin/clientes";
     }
-
 
     // DELETAR CLIENTE - A LÓGICA DE EXCLUSÃO DE PETS AINDA DEVE ESTAR NO SERVICE
     @GetMapping("/deletar/{cpf}")
