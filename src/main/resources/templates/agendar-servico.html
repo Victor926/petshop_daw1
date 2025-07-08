@@ -1,44 +1,97 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agendar Novo Serviço</title>
-    </head>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1, h2 { color: #333; }
+        form { background-color: #f9f9f9; padding: 20px; border-radius: 8px; max-width: 500px; margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        div { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], input[type="datetime-local"], select {
+            width: calc(100% - 22px); /* Ajuste para padding e border */
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover { background-color: #218838; }
+        .btn-cancel {
+            background-color: #6c757d;
+            text-decoration: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+        }
+        .btn-cancel:hover { background-color: #5a6268; }
+        .btn { padding: 8px 12px; border-radius: 4px; text-decoration: none; color: white; margin-right: 5px; } /* Adicionado para links */
+        .btn-primary { background-color: #007bff; } /* Adicionado para links */
+        .btn-info { background-color: #17a2b8; } /* Adicionado para links */
+        .alert { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
+        .alert-success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .alert-danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+
+        /* Estilos para Header e Footer para consistência */
+        header { background-color: #f8f9fa; padding: 15px 20px; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { margin: 0; font-size: 1.8em; }
+        .header-controls { float: right; }
+        footer { text-align: center; padding: 15px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; margin-top: 30px; }
+    </style>
+</head>
 <body>
-    <h1>Agendar Novo Serviço</h1>
+    <header>
+        <h1>Agendar Novo Serviço</h1>
+        <div sec:authorize="isAuthenticated()" class="header-controls">
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <input type="submit" value="Sair" class="btn btn-danger"/>
+            </form>
+        </div>
+        <p><a th:href="@{'/cliente/' + ${clienteCpf} + '/agendamentos'}" class="btn btn-primary">Voltar para Meus Agendamentos</a></p>
+    </header>
 
-    <div th:if="${mensagem}" style="color: green;">
-        <p th:text="${mensagem}"></p>
-    </div>
-    <div th:if="${erro}" style="color: red;">
-        <p th:text="${erro}"></p>
-    </div>
+    <main>
+        <div th:if="${mensagem}" class="alert alert-success" th:text="${mensagem}"></div>
+        <div th:if="${erro}" class="alert alert-danger" th:text="${erro}"></div>
 
-    <form th:action="@{/cliente/{clienteCpf}/agendamentos/salvar(clienteCpf=${clienteCpf})}" method="post">
-        <input type="hidden" name="clienteCpf" th:value="${clienteCpf}" />
+        <form th:action="@{/cliente/{clienteCpf}/agendamentos/salvar(clienteCpf=${clienteCpf})}" method="post">
+            <input type="hidden" name="clienteCpf" th:value="${clienteCpf}" />
 
-        <label for="petId">Meu Pet:</label><br>
-        <select id="petId" name="petId" required>
-            <option value="">Selecione um Pet</option>
-            <option th:each="pet : ${pets}" th:value="${pet.id}" th:text="${pet.nome + ' (' + pet.especie + ')'}"></option>
-        </select><br><br>
+            <div>
+                <label for="petId">Meu Pet:</label>
+                <select id="petId" name="petId" class="form-control" required>
+                    <option value="">Selecione um Pet</option>
+                    <option th:each="pet : ${pets}" th:value="${pet.id}" th:text="${pet.nome + ' (' + pet.especie + ')'}"></option>
+                </select>
+            </div>
 
-        <label for="horarioDisponivelId">Horário Disponível:</label><br>
-        <select id="horarioDisponivelId" name="horarioDisponivelId" required>
-            <option value="">Selecione um Horário</option>
-            <option th:each="horario : ${horariosDisponiveis}"
-                    th:value="${horario.id}"
-                    th:text="${#temporals.format(horario.dataHoraInicio, 'dd/MM/yyyy HH:mm') + ' - ' + horario.funcionario.nome + (horario.servico != null ? ' (' + horario.servico.tipo + ')' : '')}"></option>
-        </select>
-        <br><br>
+            <div>
+                <label for="horarioDisponivelId">Horário Disponível:</label>
+                <select id="horarioDisponivelId" name="horarioDisponivelId" class="form-control" required>
+                    <option value="">Selecione um Horário</option>
+                    <option th:each="horario : ${horariosDisponiveis}"
+                            th:value="${horario.id}"
+                            th:text="${#temporals.format(horario.dataHoraInicio, 'dd/MM/yyyy HH:mm') + ' - ' + horario.funcionario.nome + (horario.servico != null ? ' (' + horario.servico.tipo + ')' : '')}"></option>
+                </select>
+            </div>
 
-        <button type="submit">Agendar Serviço</button>
-    </form>
+            <button type="submit">Agendar Serviço</button>
+            <a th:href="@{'/cliente/' + ${clienteCpf} + '/agendamentos'}" class="btn-cancel">Cancelar</a>
+        </form>
+    </main>
 
-    <br>
-    <a th:href="@{/cliente/{clienteCpf}/pets(clienteCpf=${clienteCpf})}">Meus Pets</a> |
-    <a th:href="@{/cliente/{clienteCpf}/agendamentos(clienteCpf=${clienteCpf})}">Meus Agendamentos</a> |
-    <a th:href="@{/}" >Voltar para a Home</a>
+    <footer>
+        <p>&copy; 2025 Petshop - Agendar Serviço</p>
+    </footer>
 </body>
 </html>

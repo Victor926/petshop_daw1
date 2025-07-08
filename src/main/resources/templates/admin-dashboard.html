@@ -4,6 +4,32 @@
     <meta charset="UTF-8">
     <title>Dashboard do Administrador</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        /* Estilos para botões, gata! */
+        .btn { padding: 8px 12px; border-radius: 4px; text-decoration: none; color: white; margin-right: 5px; }
+        .btn-primary { background-color: #007bff; }
+        .btn-warning { background-color: #ffc107; }
+        .btn-danger { background-color: #dc3545; }
+        /* Estilos para alertas de mensagem */
+        .alert { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
+        .alert-success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .alert-danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+
+        /* Estilos específicos para o dashboard, diva! */
+        header { background-color: #f8f9fa; padding: 15px 20px; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { margin: 0; font-size: 1.8em; }
+        nav ul { list-style: none; margin: 0; padding: 0; display: flex; }
+        nav ul li { margin-right: 15px; }
+        nav ul li a { text-decoration: none; color: #007bff; font-weight: bold; padding: 5px 0; }
+        nav ul li a:hover { color: #0056b3; }
+        main { padding: 20px; }
+        footer { text-align: center; padding: 15px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; position: fixed; bottom: 0; width: 100%; }
+    </style>
 </head>
 <body>
     <header>
@@ -18,7 +44,7 @@
                 
                 <li sec:authorize="isAuthenticated()">
                     <form th:action="@{/logout}" method="post" style="display:inline;">
-                        <input type="submit" value="Sair" class="btn-logout"/>
+                        <input type="submit" value="Sair" class="btn btn-danger"/>
                     </form>
                 </li>
             </ul>
@@ -31,11 +57,6 @@
     </main>
 
     <footer>
-        <div sec:authorize="isAuthenticated()" style="float: right; margin-right: 20px;">
-            <form th:action="@{/logout}" method="post">
-                <input type="submit" value="Sair" style="padding: 8px 15px; background-color: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer;"/>
-            </form>
-        </div>
         <p>&copy; 2025 Petshop - Administração</p>
     </footer>
 </body>

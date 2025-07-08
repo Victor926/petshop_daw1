@@ -1,60 +1,91 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meus Agendamentos</title>
-    </head>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .btn { padding: 8px 12px; border-radius: 4px; text-decoration: none; color: white; margin-right: 5px; }
+        .btn-primary { background-color: #007bff; }
+        .btn-warning { background-color: #ffc107; }
+        .btn-danger { background-color: #dc3545; }
+        .btn-info { background-color: #17a2b8; } /* Adicionado para botões de informação */
+        .alert { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
+        .alert-success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .alert-danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+
+        /* Estilos para Header e Footer para consistência */
+        header { background-color: #f8f9fa; padding: 15px 20px; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { margin: 0; font-size: 1.8em; }
+        .header-controls { float: right; }
+        footer { text-align: center; padding: 15px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; margin-top: 30px; }
+    </style>
+</head>
 <body>
-    <h1>Meus Agendamentos</h1>
+    <header>
+        <h1>Meus Agendamentos</h1>
+        <div sec:authorize="isAuthenticated()" class="header-controls">
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <input type="submit" value="Sair" class="btn btn-danger"/>
+            </form>
+        </div>
+        <p><a th:href="@{'/cliente/dashboard'}" class="btn btn-primary">Voltar para o Dashboard</a></p>
+    </header>
 
-    <div th:if="${mensagem}" style="color: green;">
-        <p th:text="${mensagem}"></p>
-    </div>
-    <div th:if="${erro}" style="color: red;">
-        <p th:text="${erro}"></p>
-    </div>
+    <main>
+        <div th:if="${mensagem}" class="alert alert-success" th:text="${mensagem}"></div>
+        <div th:if="${erro}" class="alert alert-danger" th:text="${erro}"></div>
 
-    <p>
-        <a th:href="@{/cliente/{clienteCpf}/agendamentos/novo(clienteCpf=${clienteCpf})}">Agendar Novo Serviço</a>
-    </p>
+        <p>
+            <a th:href="@{/cliente/{clienteCpf}/agendamentos/novo(clienteCpf=${clienteCpf})}" class="btn btn-primary">Agendar Novo Serviço</a>
+        </p>
 
-    <table border="1">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Data e Hora</th>
-                <th>Pet</th>
-                <th>Serviço</th>
-                <th>Funcionário</th>
-                <th>Status</th>
-                <th>Confirmado</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="atendimento : ${atendimentos}">
-                <td th:text="${atendimento.id}"></td>
-                <td th:text="${#temporals.format(atendimento.dataHora, 'dd/MM/yyyy HH:mm')}"></td>
-                <td th:text="${atendimento.pet.nome}"></td>
-                <td th:text="${atendimento.servico.tipo}"></td>
-                <td th:text="${atendimento.funcionario.nome}"></td>
-                <td th:text="${atendimento.status}"></td>
-                <td th:text="${atendimento.confirmado ? 'Sim' : 'Não'}"></td>
-                <td>
-                    <a th:if="${atendimento.status != 'CANCELADO'}"
-                       th:href="@{/cliente/{clienteCpf}/agendamentos/cancelar/{id}(clienteCpf=${clienteCpf}, id=${atendimento.id})}"
-                       onclick="return confirm('Tem certeza que deseja cancelar este agendamento?');">Cancelar</a>
-                </td>
-            </tr>
-            <tr th:if="${#lists.isEmpty(atendimentos)}">
-                <td colspan="8">Nenhum agendamento encontrado.</td>
-            </tr>
-        </tbody>
-    </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Data e Hora</th>
+                    <th>Pet</th>
+                    <th>Serviço</th>
+                    <th>Funcionário</th>
+                    <th>Status</th>
+                    <th>Confirmado</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="atendimento : ${atendimentos}">
+                    <td th:text="${atendimento.id}"></td>
+                    <td th:text="${#temporals.format(atendimento.dataHora, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td th:text="${atendimento.pet.nome}"></td>
+                    <td th:text="${atendimento.servico.tipo}"></td>
+                    <td th:text="${atendimento.funcionario != null ? atendimento.funcionario.nome : 'N/A'}"></td>
+                    <td th:text="${atendimento.status}"></td>
+                    <td th:text="${atendimento.confirmado ? 'Sim' : 'Não'}"></td>
+                    <td>
+                        <a th:if="${atendimento.status != 'CANCELADO'}"
+                           th:href="@{/cliente/{clienteCpf}/agendamentos/cancelar/{id}(clienteCpf=${clienteCpf}, id=${atendimento.id})}"
+                           onclick="return confirm('Tem certeza que deseja cancelar este agendamento?');" class="btn btn-danger btn-sm">Cancelar</a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(atendimentos)}">
+                    <td colspan="8">Nenhum agendamento encontrado.</td>
+                </tr>
+            </tbody>
+        </table>
 
-    <br>
-    <a th:href="@{/cliente/{clienteCpf}/pets(clienteCpf=${clienteCpf})}">Meus Pets</a> |
-    <a th:href="@{/}" >Voltar para a Home</a>
+        <br>
+        <a th:href="@{'/cliente/' + ${clienteCpf} + '/pets'}" class="btn btn-info">Meus Pets</a>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Petshop - Meus Agendamentos</p>
+    </footer>
 </body>
 </html>

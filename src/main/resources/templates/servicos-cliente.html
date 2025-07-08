@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciar Serviços</title>
+    <title>Serviços Disponíveis para Você</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
@@ -15,11 +15,11 @@
         .btn-primary { background-color: #007bff; }
         .btn-warning { background-color: #ffc107; }
         .btn-danger { background-color: #dc3545; }
+        .btn-info { background-color: #17a2b8; }
         .alert { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
         .alert-success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
         .alert-danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
 
-        /* Estilos para Header e Footer para consistência */
         header { background-color: #f8f9fa; padding: 15px 20px; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center; }
         header h1 { margin: 0; font-size: 1.8em; }
         .header-controls { float: right; }
@@ -28,53 +28,44 @@
 </head>
 <body>
     <header>
-        <h1>Gerenciar Serviços</h1>
+        <h1>Serviços Disponíveis</h1>
         <div sec:authorize="isAuthenticated()" class="header-controls">
             <form th:action="@{/logout}" method="post" style="display:inline;">
                 <input type="submit" value="Sair" class="btn btn-danger"/>
             </form>
         </div>
-        <p><a th:href="@{/admin/dashboard}" class="btn btn-primary">Voltar para o Dashboard Admin</a></p>
+        <p><a th:href="@{'/cliente/dashboard'}" class="btn btn-primary">Voltar para o Dashboard</a></p>
     </header>
 
     <main>
         <div th:if="${mensagem}" class="alert alert-success" th:text="${mensagem}"></div>
         <div th:if="${erro}" class="alert alert-danger" th:text="${erro}"></div>
 
-        <p>
-            <a th:href="@{/admin/servicos/novo}" class="btn btn-primary">Adicionar Novo Serviço</a>
-        </p>
+        <h2>Conheça nossos serviços e agende o que seu pet precisa!</h2>
 
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Tipo de Serviço</th>
-                    <th>Preço</th>
-                    <th>Ações</th>
-                </tr>
+                    <th>Serviço</th>
+                    <th>Preço (R$)</th>
+                    <th>Ações</th> </tr>
             </thead>
             <tbody>
                 <tr th:each="servico : ${servicos}">
-                    <td th:text="${servico.id}"></td>
                     <td th:text="${servico.tipo}"></td>
-                    <td th:text="${#numbers.formatCurrency(servico.preco)}"></td>
+                    <td th:text="${#numbers.formatDecimal(servico.preco, 1, 'POINT', 2, 'COMMA')}"></td>
                     <td>
-                        <a th:href="@{/admin/servicos/editar/{id}(id=${servico.id})}" class="btn btn-warning btn-sm">Editar</a>
-                        |
-                        <a th:href="@{/admin/servicos/deletar/{id}(id=${servico.id})}"
-                           onclick="return confirm('Tem certeza que deseja excluir este serviço?');" class="btn btn-danger btn-sm">Excluir</a>
+                        <a th:href="@{'/cliente/' + ${clienteCpf} + '/agendamentos/novo'}" class="btn btn-info btn-sm">Agendar</a>
                     </td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(servicos)}">
-                    <td colspan="4">Nenhum serviço cadastrado.</td>
-                </tr>
+                    <td colspan="3">Nenhum serviço disponível no momento.</td> </tr>
             </tbody>
         </table>
     </main>
 
     <footer>
-        <p>&copy; 2025 Petshop - Gerenciamento de Serviços</p>
+        <p>&copy; 2025 Petshop - Serviços</p>
     </footer>
 </body>
 </html>

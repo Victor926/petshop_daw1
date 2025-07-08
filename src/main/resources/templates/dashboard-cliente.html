@@ -1,16 +1,101 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Dashboard do Cliente</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        .btn { padding: 8px 12px; border-radius: 4px; text-decoration: none; color: white; margin-right: 5px; }
+        .btn-primary { background-color: #007bff; }
+        .btn-warning { background-color: #ffc107; }
+        .btn-danger { background-color: #dc3545; }
+        .alert { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
+        .alert-success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .alert-danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+
+        header { background-color: #f8f9fa; padding: 15px 20px; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { margin: 0; font-size: 1.8em; }
+        nav ul { list-style: none; margin: 0; padding: 0; display: flex; }
+        nav ul li { margin-right: 15px; }
+        nav ul li a { text-decoration: none; color: #007bff; font-weight: bold; padding: 5px 0; }
+        nav ul li a:hover { color: #0056b3; }
+        main { padding: 20px; }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .dashboard-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .dashboard-card h3 {
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+        .dashboard-card .btn {
+            width: 80%;
+            margin-top: 10px;
+        }
+        footer { text-align: center; padding: 15px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; position: fixed; bottom: 0; width: 100%; }
+    </style>
 </head>
 <body>
-            <h1>Dashboard do Cliente</h1>
-        <div sec:authorize="isAuthenticated()" style="float: right; margin-right: 20px;">
-            <form th:action="@{/logout}" method="post">
-                <input type="submit" value="Sair" style="padding: 8px 15px; background-color: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer;"/>
-            </form>
+    <header>
+        <h1>Dashboard do Cliente</h1>
+        <nav>
+            <ul>
+                <li><a th:href="@{'/cliente/' + ${clienteCpf} + '/perfil/editar'}">Editar Meu Perfil</a></li>
+                <li sec:authorize="isAuthenticated()">
+                    <form th:action="@{/logout}" method="post" style="display:inline;">
+                        <input type="submit" value="Sair" class="btn btn-danger"/>
+                    </form>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h2 class="mb-4">Olá, <span sec:authentication="name">Cliente</span>! Bem-vindo(a) de volta!</h2>
+
+        <div th:if="${mensagem}" class="alert alert-success" th:text="${mensagem}"></div>
+        <div th:if="${erro}" class="alert alert-danger" th:text="${erro}"></div>
+
+        <h3>O que você gostaria de fazer hoje?</h3>
+
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <h3>Meus Pets</h3>
+                <p>Veja e gerencie os seus bichinhos cadastrados.</p>
+                <a th:href="@{'/cliente/' + ${clienteCpf} + '/pets'}" class="btn btn-primary">Ver Meus Pets</a>
+                <a th:href="@{'/cliente/' + ${clienteCpf} + '/pets/novo'}" class="btn btn-info">Cadastrar Novo Pet</a>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>Meus Agendamentos</h3>
+                <p>Confira seus agendamentos e marque novos serviços.</p>
+                <a th:href="@{'/cliente/' + ${clienteCpf} + '/agendamentos'}" class="btn btn-primary">Ver Agendamentos</a>
+                <a th:href="@{'/cliente/' + ${clienteCpf} + '/agendamentos/novo'}" class="btn btn-info">Agendar Novo Serviço</a>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>Serviços Disponíveis</h3>
+                <p>Explore todos os serviços que oferecemos para seu pet.</p>
+                <a th:href="@{'/cliente/' + ${clienteCpf} + '/servicos'}" class="btn btn-primary">Ver Serviços</a>
+            </div>
         </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Petshop - Dashboard do Cliente</p>
+    </footer>
 </body>
 </html>
