@@ -70,15 +70,26 @@ public class HorarioDisponivelController {
     @PostMapping("/salvar")
     public String salvarHorario(
             @ModelAttribute("horario") HorarioDisponivel horario, // Recebe o objeto do formulário
-            @RequestParam(name = "funcionarioCpf", required = true) String funcionarioCpf,
-            @RequestParam(name = "servicoId", required = false) Long servicoId, // Opcional
-            @RequestParam("dataHoraInicioString") String dataHoraInicioString,
-            @RequestParam("dataHoraFimString") String dataHoraFimString,
             RedirectAttributes redirectAttributes) {
 
         try {
-            LocalDateTime dataHoraInicio = LocalDateTime.parse(dataHoraInicioString);
-            LocalDateTime dataHoraFim = LocalDateTime.parse(dataHoraFimString);
+            // Obtém os valores diretamente do objeto 'horario'
+            String funcionarioCpf = horario.getFuncionario() != null ? horario.getFuncionario().getCpf() : null;
+            Long servicoId = horario.getServico() != null ? horario.getServico().getId() : null;
+            LocalDateTime dataHoraInicio = horario.getDataHoraInicio();
+            LocalDateTime dataHoraFim = horario.getDataHoraFim();
+
+            // Validações adicionais (opcional, mas recomendado)
+            if (funcionarioCpf == null || funcionarioCpf.isEmpty()) {
+                throw new IllegalArgumentException("Funcionário é obrigatório.");
+            }
+            if (dataHoraInicio == null) {
+                throw new IllegalArgumentException("Data e hora de início são obrigatórias.");
+            }
+            if (dataHoraFim == null) {
+                throw new IllegalArgumentException("Data e hora de fim são obrigatórias.");
+            }
+
 
             horarioDisponivelService.saveHorarioDisponivel(
                     horario.getId(), // Passa o ID para edição ou null para novo
@@ -88,9 +99,15 @@ public class HorarioDisponivelController {
                     dataHoraFim
             );
             redirectAttributes.addFlashAttribute("mensagem", "Horário disponível salvo com sucesso!");
-        } catch (IllegalArgumentException | DateTimeParseException e) {
+        } catch (IllegalArgumentException e) { // Captura a exceção mais específica
             redirectAttributes.addFlashAttribute("erro", "Erro ao salvar horário: " + e.getMessage());
             // Se houver erro, retorna ao formulário com os dados preenchidos (necessário re-adicionar atributos ao model)
+            if (horario.getId() != null) {
+                return "redirect:/admin/horarios/editar/" + horario.getId();
+            }
+            return "redirect:/admin/horarios/novo";
+        } catch (Exception e) { // Captura outras exceções genéricas
+            redirectAttributes.addFlashAttribute("erro", "Erro inesperado ao salvar horário: " + e.getMessage());
             if (horario.getId() != null) {
                 return "redirect:/admin/horarios/editar/" + horario.getId();
             }
