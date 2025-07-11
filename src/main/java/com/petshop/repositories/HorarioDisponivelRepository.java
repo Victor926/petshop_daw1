@@ -18,4 +18,6 @@ public interface HorarioDisponivelRepository extends JpaRepository<HorarioDispon
 
     // Método para encontrar horários disponíveis por funcionário
     List<HorarioDisponivel> findByFuncionarioCpfAndOcupadoFalseOrderByDataHoraInicioAsc(String funcionarioCpf);
+
+    List<HorarioDisponivel> findByFuncionarioCpfAndDataHoraInicio(String funcionarioCpf, LocalDateTime dataHoraInicio);
 }

@@ -68,7 +68,7 @@
             <div>
                 <label for="cpf">CPF:</label>
                 <input type="text" id="cpf" th:field="*{cpf}" class="form-control" th:readonly="${funcionario.cpf != null}" th:required="${funcionario.cpf == null}"/>
-                <input type="hidden" th:if="${funcionario.cpf != null}" th:field="*{cpf}" />
+                
                 <small class="form-text text-muted" th:if="${funcionario.cpf != null}">CPF não pode ser alterado após a criação.</small>
             </div>
 

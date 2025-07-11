@@ -31,7 +31,11 @@ public class Atendimento {
     
     @Column(nullable = false)
     private String status;
-    private boolean confirmado;
+
+    @Column(columnDefinition = "boolean default false") // Garante que o valor padrão seja false
+    private boolean confirmado = false; // Inicializa para evitar null
+
+    // Removido: private String observacoes; // Campo de observações removido
 
     // Getters e Setters
     
@@ -106,4 +110,8 @@ public class Atendimento {
     public void setConfirmado(boolean confirmado) {
         this.confirmado = confirmado;
     }
+
+    // Removido: Getters e Setters para observacoes
+    // public String getObservacoes() { return observacoes; }
+    // public void setObservacoes(String observacoes) { this.observacoes = observacoes; }
 }

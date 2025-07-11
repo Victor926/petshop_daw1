@@ -1,12 +1,13 @@
 package com.petshop.services;
 
-import com.petshop.models.HorarioDisponivel;
 import com.petshop.models.Funcionario;
+import com.petshop.models.HorarioDisponivel;
 import com.petshop.models.Servico;
-import com.petshop.repositories.HorarioDisponivelRepository;
 import com.petshop.repositories.FuncionarioRepository;
+import com.petshop.repositories.HorarioDisponivelRepository;
 import com.petshop.repositories.ServicoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,70 +28,75 @@ public class HorarioDisponivelService {
         this.servicoRepository = servicoRepository;
     }
 
-    // Método para salvar um novo HorarioDisponivel
+    public List<HorarioDisponivel> findAllHorariosDisponiveis() {
+        return horarioDisponivelRepository.findAll();
+    }
+
+    public Optional<HorarioDisponivel> findHorarioDisponivelById(Long id) {
+        return horarioDisponivelRepository.findById(id);
+    }
+
+    @Transactional
     public HorarioDisponivel saveHorarioDisponivel(Long id, String funcionarioCpf, Long servicoId, LocalDateTime dataHoraInicio, LocalDateTime dataHoraFim) {
         Funcionario funcionario = funcionarioRepository.findById(funcionarioCpf)
-                                                 .orElseThrow(() -> new IllegalArgumentException("Funcionário não encontrado."));
+                .orElseThrow(() -> new IllegalArgumentException("Funcionário não encontrado com o CPF: " + funcionarioCpf));
 
         Servico servico = null;
         if (servicoId != null) {
             servico = servicoRepository.findById(servicoId)
-                                       .orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado."));
+                    .orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado com o ID: " + servicoId));
         }
 
-        // Validações básicas (você pode expandir isso)
-        if (dataHoraInicio == null || dataHoraFim == null || dataHoraInicio.isAfter(dataHoraFim)) {
-            throw new IllegalArgumentException("Período de horário inválido.");
-        }
-        if (dataHoraInicio.isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Não é possível adicionar horários no passado.");
-        }
-
-        HorarioDisponivel horario;
-        if (id == null) {
-            horario = new HorarioDisponivel();
-        } else {
+        HorarioDisponivel horario = new HorarioDisponivel();
+        if (id != null) {
             horario = horarioDisponivelRepository.findById(id)
-                                                 .orElseThrow(() -> new IllegalArgumentException("Horário disponível não encontrado para edição."));
+                    .orElseThrow(() -> new IllegalArgumentException("Horário disponível não encontrado com o ID: " + id));
         }
 
         horario.setFuncionario(funcionario);
         horario.setServico(servico);
         horario.setDataHoraInicio(dataHoraInicio);
         horario.setDataHoraFim(dataHoraFim);
-        horario.setOcupado(false); // Garante que, ao salvar/atualizar, ele esteja desocupado
+        horario.setOcupado(false); // Sempre salva como não ocupado ao criar/atualizar pelo admin
 
         return horarioDisponivelRepository.save(horario);
     }
 
-    // Método para buscar todos os horários disponíveis (para o admin listar)
-    public List<HorarioDisponivel> findAllHorariosDisponiveis() {
-        return horarioDisponivelRepository.findAll();
-    }
-
-    // Método para buscar um HorarioDisponivel pelo ID
-    public Optional<HorarioDisponivel> findHorarioDisponivelById(Long id) {
-        return horarioDisponivelRepository.findById(id);
-    }
-
-    // Método para buscar horários que ainda não estão ocupados (para o cliente ver)
-    public List<HorarioDisponivel> findAvailableHorarios() {
-        return horarioDisponivelRepository.findByOcupadoFalseOrderByDataHoraInicioAsc();
-    }
-
-    // Método para marcar um HorarioDisponivel como ocupado
-    public HorarioDisponivel marcarComoOcupado(Long id) {
-        HorarioDisponivel horario = horarioDisponivelRepository.findById(id)
-                                                               .orElseThrow(() -> new IllegalArgumentException("Horário disponível não encontrado."));
-        if (horario.getOcupado()) {
-            throw new IllegalStateException("Horário já está ocupado.");
-        }
-        horario.setOcupado(true);
-        return horarioDisponivelRepository.save(horario);
-    }
-
-    // Método para deletar um HorarioDisponivel
+    @Transactional
     public void deleteHorarioDisponivel(Long id) {
         horarioDisponivelRepository.deleteById(id);
+    }
+
+    // NOVO MÉTODO: Encontra o HorarioDisponivel para liberar após o cancelamento de um atendimento
+    public Optional<HorarioDisponivel> findHorarioDisponivelParaLiberar(String funcionarioCpf, LocalDateTime dataHoraInicio, Long servicoId) {
+        List<HorarioDisponivel> horariosEncontrados = horarioDisponivelRepository.findByFuncionarioCpfAndDataHoraInicio(funcionarioCpf, dataHoraInicio);
+
+        if (horariosEncontrados.isEmpty()) {
+            return Optional.empty();
+        }
+
+        // Tenta encontrar um horário que corresponda ao serviço específico
+        for (HorarioDisponivel horario : horariosEncontrados) {
+            if (servicoId != null) {
+                // Se o atendimento tinha um serviço, tenta encontrar um HorarioDisponivel com o mesmo serviço ou um slot genérico
+                if ((horario.getServico() != null && horario.getServico().getId().equals(servicoId)) || horario.getServico() == null) {
+                    return Optional.of(horario);
+                }
+            } else {
+                // Se o atendimento não tinha um serviço específico (era para um slot genérico),
+                // tenta encontrar um HorarioDisponivel que também seja genérico (servico is null)
+                if (horario.getServico() == null) {
+                    return Optional.of(horario);
+                }
+            }
+        }
+        // Se não encontrar uma correspondência exata, ou se múltiplos slots genéricos existirem,
+        // pode ser necessário uma lógica mais complexa ou assumir o primeiro (menos ideal)
+        // Por simplicidade, retornamos o primeiro encontrado se houver apenas um, ou vazio se nenhum corresponder
+        if(horariosEncontrados.size() == 1 && servicoId == null && horariosEncontrados.get(0).getServico() == null) {
+             return Optional.of(horariosEncontrados.get(0));
+        }
+        // Retorna vazio se nenhuma correspondência específica for encontrada
+        return Optional.empty();
     }
 }
