@@ -102,7 +102,6 @@ public class AgendamentoClienteController {
             }
             HorarioDisponivel horarioSelecionado = horarioOpt.get();
             
-            // finalServicoId nunca será nulo aqui, pois a lista de horários já foi filtrada
             Long finalServicoId = horarioSelecionado.getServico().getId(); 
 
             atendimentoService.agendarAtendimento(

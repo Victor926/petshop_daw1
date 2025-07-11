@@ -8,10 +8,10 @@ import lombok.AllArgsConstructor;
 @Entity
 @Table(name = "usuario")
 @Inheritance(strategy = InheritanceType.JOINED)
-@Data // Inclui getters, setters, equals, hashCode, toString
+@Data
 @NoArgsConstructor
-@AllArgsConstructor // Adicionar se você quiser um construtor com todos os campos
-public abstract class Usuario { // Permanece abstrata
+@AllArgsConstructor
+public abstract class Usuario {
 
     @Id
     private String cpf;
@@ -19,10 +19,6 @@ public abstract class Usuario { // Permanece abstrata
     @Column(nullable = false, length = 100)
     private String nome;
 
-    @Column(nullable = false) // Senha não pode ser nula
-    private String senha; // NOVO: Campo para armazenar a senha
-
-    // Se você não estiver usando Lombok, adicione manualmente:
-    // public String getSenha() { return senha; }
-    // public void setSenha(String senha) { this.senha = senha; }
+    @Column(nullable = false)
+    private String senha;
 }

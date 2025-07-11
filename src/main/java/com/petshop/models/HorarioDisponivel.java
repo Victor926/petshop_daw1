@@ -18,12 +18,12 @@ public class HorarioDisponivel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Carregamento sob demanda
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "funcionario_cpf", nullable = false)
     private Funcionario funcionario;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Carregamento sob demanda
-    @JoinColumn(name = "servico_id") // Serviço pode ser opcional para um slot genérico
+    @ManyToOne(fetch = FetchType.LAZY) 
+    @JoinColumn(name = "servico_id") 
     private Servico servico;
 
     @Column(name = "data_hora_inicio", nullable = false)
@@ -33,5 +33,5 @@ public class HorarioDisponivel {
     private LocalDateTime dataHoraFim;
 
     @Column(nullable = false)
-    private Boolean ocupado = false; // Por padrão, o slot está livre
+    private Boolean ocupado = false;
 }

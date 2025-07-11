@@ -2,62 +2,144 @@
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard do Administrador</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { color: #333; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        /* Estilos para botões, gata! */
-        .btn { padding: 8px 12px; border-radius: 4px; text-decoration: none; color: white; margin-right: 5px; }
-        .btn-primary { background-color: #007bff; }
-        .btn-warning { background-color: #ffc107; }
-        .btn-danger { background-color: #dc3545; }
-        /* Estilos para alertas de mensagem */
-        .alert { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
-        .alert-success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
-        .alert-danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
-
-        /* Estilos específicos para o dashboard, diva! */
-        header { background-color: #f8f9fa; padding: 15px 20px; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center; }
-        header h1 { margin: 0; font-size: 1.8em; }
-        nav ul { list-style: none; margin: 0; padding: 0; display: flex; }
-        nav ul li { margin-right: 15px; }
-        nav ul li a { text-decoration: none; color: #007bff; font-weight: bold; padding: 5px 0; }
-        nav ul li a:hover { color: #0056b3; }
-        main { padding: 20px; }
-        footer { text-align: center; padding: 15px; background-color: #f8f9fa; border-top: 1px solid #e9ecef; position: fixed; bottom: 0; width: 100%; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f6;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        .card-header {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+        .card-body .btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .footer {
+            background-color: #343a40;
+            color: white;
+            padding: 15px 0;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            margin-top: 30px;
+        }
+        .main-content {
+            padding-top: 20px;
+            padding-bottom: 80px;
+        }
+        .section-title {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Bem-vindo ao Dashboard do Administrador!</h1>
-        <nav>
-            <ul>
-                <li><a th:href="@{/admin/funcionarios}">Gerenciar Funcionários</a></li>
-                <li><a th:href="@{/admin/servicos}">Gerenciar Serviços</a></li>
-                <li><a th:href="@{/admin/horarios}">Gerenciar Horários</a></li>
-                
-                <li><a th:href="@{/admin/clientes}">Gerenciar Clientes</a></li>
-                
-                <li sec:authorize="isAuthenticated()">
-                    <form th:action="@{/logout}" method="post" style="display:inline;">
-                        <input type="submit" value="Sair" class="btn btn-danger"/>
-                    </form>
-                </li>
-            </ul>
-        </nav>
-    </header>
 
-    <main>
-        <h2>Opções de Administração:</h2>
-        <p>Use os links acima para gerenciar o sistema.</p>
-    </main>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/admin/dashboard}">Petshop Admin</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAdmin" aria-controls="navbarNavAdmin" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAdmin">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/funcionarios}">Gerenciar Funcionários</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/servicos}">Gerenciar Serviços</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/horarios}">Gerenciar Horários</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/clientes}">Gerenciar Clientes</a>
+                    </li>
+                    <li sec:authorize="isAuthenticated()" class="nav-item">
+                        <form th:action="@{/logout}" method="post" class="form-inline my-2 my-lg-0 ml-3">
+                            <button type="submit" class="btn btn-outline-danger my-2 my-sm-0">Sair</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-    <footer>
-        <p>&copy; 2025 Petshop - Administração</p>
+    <div class="container main-content">
+        <h1 class="section-title text-center my-4">Bem-vindo ao Dashboard do Administrador!</h1>
+
+        <div class="row">
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        Gerenciamento de Funcionários
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Adicione, edite ou remova funcionários do sistema.</p>
+                        <a th:href="@{/admin/funcionarios}" class="btn btn-primary">Acessar</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        Gerenciamento de Serviços
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Defina os tipos de serviços oferecidos pelo petshop.</p>
+                        <a th:href="@{/admin/servicos}" class="btn btn-primary">Acessar</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        Gerenciamento de Horários
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Gerencie a disponibilidade de horários para os funcionários.</p>
+                        <a th:href="@{/admin/horarios}" class="btn btn-primary">Acessar</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        Gerenciamento de Clientes
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Visualize e gerencie as informações dos clientes cadastrados.</p>
+                        <a th:href="@{/admin/clientes}" class="btn btn-primary">Acessar</a>
+                    </div>
+                </div>
+            </div>
+
+            </div>
+    </div>
+
+    <footer class="footer mt-auto py-3 bg-dark text-white">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2025 Petshop - Administração</p>
+        </div>
     </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

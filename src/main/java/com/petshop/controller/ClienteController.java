@@ -53,10 +53,10 @@ public class ClienteController {
     }
 
     // NOVO MÉTODO: SALVAR NOVO CLIENTE
-    @PostMapping("/novo") // Altera o path para /novo para indicar criação
+    @PostMapping("/novo")
     @Transactional
     public String criarNovoCliente(@ModelAttribute Cliente clienteDoFormulario,
-                                   @RequestParam("senha") String senha, // Senha é obrigatória na criação
+                                   @RequestParam("senha") String senha,
                                    RedirectAttributes redirectAttributes) {
         try {
             System.out.println("--- DEBUG CRIAÇÃO NOVO CLIENTE INÍCIO ---");
@@ -75,7 +75,7 @@ public class ClienteController {
             Cliente novoCliente = new Cliente();
             novoCliente.setCpf(clienteDoFormulario.getCpf());
             novoCliente.setNome(clienteDoFormulario.getNome());
-            novoCliente.setSenha(passwordEncoder.encode(senha)); // Criptografa a senha
+            novoCliente.setSenha(passwordEncoder.encode(senha));
 
             clienteRepository.save(novoCliente);
             redirectAttributes.addFlashAttribute("mensagem", "Cliente cadastrado com sucesso!");
@@ -83,7 +83,7 @@ public class ClienteController {
         } catch (IllegalArgumentException e) {
             System.err.println("Capturado IllegalArgumentException (Criação): " + e.getMessage());
             redirectAttributes.addFlashAttribute("erro", "Erro ao cadastrar cliente: " + e.getMessage());
-            return "redirect:/admin/clientes/novo"; // Volta para o formulário de novo
+            return "redirect:/admin/clientes/novo";
         } catch (Exception e) {
             System.err.println("Capturado Exception (Criação): " + e.getMessage());
             e.printStackTrace();
@@ -99,18 +99,17 @@ public class ClienteController {
         Optional<Cliente> cliente = clienteService.findClienteByCpf(cpf);
         if (cliente.isPresent()) {
             model.addAttribute("cliente", cliente.get());
-            // Não passamos a senha no model para o formulário por segurança
             return "cliente-form";
         }
         return "redirect:/admin/clientes";
     }
 
     // NOVO MÉTODO: ATUALIZAR CLIENTE EXISTENTE
-    @PostMapping("/editar/{cpf}") // Altera o path para /editar/{cpf} para indicar edição
+    @PostMapping("/editar/{cpf}")
     @Transactional
     public String atualizarCliente(@PathVariable String cpf,
                                    @ModelAttribute Cliente clienteDoFormulario,
-                                   @RequestParam(value = "senha", required = false) String senha, // Senha opcional na edição
+                                   @RequestParam(value = "senha", required = false) String senha,
                                    RedirectAttributes redirectAttributes) {
         try {
             System.out.println("--- DEBUG EDIÇÃO CLIENTE INÍCIO ---");
@@ -136,25 +135,24 @@ public class ClienteController {
                 }
             }
 
-            // Atualizar APENAS os campos do cliente gerenciado com os dados do formulário
             clienteAAtualizar.setNome(clienteDoFormulario.getNome());
 
             // Lógica da senha para edição
             if (senha != null && !senha.isEmpty()) {
-                clienteAAtualizar.setSenha(passwordEncoder.encode(senha)); // Criptografa nova senha
+                clienteAAtualizar.setSenha(passwordEncoder.encode(senha));
                 System.out.println("Senha atualizada.");
             } else {
                 System.out.println("Senha mantida (vinda do DB).");
             }
 
-            clienteRepository.save(clienteAAtualizar); // Salva a entidade
+            clienteRepository.save(clienteAAtualizar);
             redirectAttributes.addFlashAttribute("mensagem", "Cliente atualizado com sucesso!");
             System.out.println("--- FIM DEBUG EDIÇÃO CLIENTE ---");
 
         } catch (IllegalArgumentException e) {
             System.err.println("Capturado IllegalArgumentException (Edição): " + e.getMessage());
             redirectAttributes.addFlashAttribute("erro", "Erro ao atualizar cliente: " + e.getMessage());
-            return "redirect:/admin/clientes/editar/" + cpf; // Volta para o formulário de edição
+            return "redirect:/admin/clientes/editar/" + cpf;
         } catch (Exception e) {
             System.err.println("Capturado Exception (Edição): " + e.getMessage());
             e.printStackTrace();
@@ -164,11 +162,11 @@ public class ClienteController {
         return "redirect:/admin/clientes";
     }
 
-    // DELETAR CLIENTE - A LÓGICA DE EXCLUSÃO DE PETS AINDA DEVE ESTAR NO SERVICE
+    // DELETAR CLIENTE 
     @GetMapping("/deletar/{cpf}")
     public String deletarCliente(@PathVariable String cpf, RedirectAttributes redirectAttributes) {
         try {
-            clienteService.deleteCliente(cpf); // Chama o serviço para a exclusão completa
+            clienteService.deleteCliente(cpf);
             redirectAttributes.addFlashAttribute("mensagem", "Cliente excluído com sucesso!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erro", "Erro ao excluir cliente: " + e.getMessage());

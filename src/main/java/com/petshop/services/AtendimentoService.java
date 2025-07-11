@@ -68,7 +68,7 @@ public class AtendimentoService {
             Long petId,
             Long horarioDisponivelId,
             Long servicoId
-            /* Removido: String observacoes */) {
+            ) {
 
         Cliente cliente = clienteRepository.findById(clienteCpf)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado."));
@@ -94,7 +94,6 @@ public class AtendimentoService {
         atendimento.setFuncionario(horarioDisponivel.getFuncionario());
         atendimento.setServico(servico);
         atendimento.setDataHora(horarioDisponivel.getDataHoraInicio());
-        // Removido: atendimento.setObservacoes(observacoes);
         atendimento.setStatus("AGENDADO");
 
         return atendimentoRepository.save(atendimento);

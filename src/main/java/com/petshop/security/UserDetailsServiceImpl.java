@@ -29,11 +29,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         // Lógica de atribuição de papel baseada no tipo da instância
         String role;
         if (usuario instanceof Funcionario) {
-            role = "ADMIN"; // Funcionários terão ROLE_ADMIN
+            role = "ADMIN";
         } else if (usuario instanceof Cliente) {
-            role = "CLIENTE"; // Clientes terão ROLE_CLIENTE
+            role = "CLIENTE";
         } else {
-            role = "USER"; // Papel padrão para outros tipos de usuário (se houver)
+            role = "USER";
         }
 
         return new org.springframework.security.core.userdetails.User(

@@ -57,7 +57,7 @@ public class HorarioDisponivelService {
         horario.setServico(servico);
         horario.setDataHoraInicio(dataHoraInicio);
         horario.setDataHoraFim(dataHoraFim);
-        horario.setOcupado(false); // Sempre salva como não ocupado ao criar/atualizar pelo admin
+        horario.setOcupado(false);
 
         return horarioDisponivelRepository.save(horario);
     }
@@ -67,7 +67,6 @@ public class HorarioDisponivelService {
         horarioDisponivelRepository.deleteById(id);
     }
 
-    // NOVO MÉTODO: Encontra o HorarioDisponivel para liberar após o cancelamento de um atendimento
     public Optional<HorarioDisponivel> findHorarioDisponivelParaLiberar(String funcionarioCpf, LocalDateTime dataHoraInicio, Long servicoId) {
         List<HorarioDisponivel> horariosEncontrados = horarioDisponivelRepository.findByFuncionarioCpfAndDataHoraInicio(funcionarioCpf, dataHoraInicio);
 
@@ -75,28 +74,21 @@ public class HorarioDisponivelService {
             return Optional.empty();
         }
 
-        // Tenta encontrar um horário que corresponda ao serviço específico
+        
         for (HorarioDisponivel horario : horariosEncontrados) {
             if (servicoId != null) {
-                // Se o atendimento tinha um serviço, tenta encontrar um HorarioDisponivel com o mesmo serviço ou um slot genérico
                 if ((horario.getServico() != null && horario.getServico().getId().equals(servicoId)) || horario.getServico() == null) {
                     return Optional.of(horario);
                 }
             } else {
-                // Se o atendimento não tinha um serviço específico (era para um slot genérico),
-                // tenta encontrar um HorarioDisponivel que também seja genérico (servico is null)
                 if (horario.getServico() == null) {
                     return Optional.of(horario);
                 }
             }
         }
-        // Se não encontrar uma correspondência exata, ou se múltiplos slots genéricos existirem,
-        // pode ser necessário uma lógica mais complexa ou assumir o primeiro (menos ideal)
-        // Por simplicidade, retornamos o primeiro encontrado se houver apenas um, ou vazio se nenhum corresponder
         if(horariosEncontrados.size() == 1 && servicoId == null && horariosEncontrados.get(0).getServico() == null) {
              return Optional.of(horariosEncontrados.get(0));
         }
-        // Retorna vazio se nenhuma correspondência específica for encontrada
         return Optional.empty();
     }
 }

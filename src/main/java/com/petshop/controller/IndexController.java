@@ -3,8 +3,8 @@ package com.petshop.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.security.core.Authentication; // Importar Authentication
-import org.springframework.security.core.context.SecurityContextHolder; // Importar SecurityContextHolder
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Controller
 public class IndexController {
@@ -15,18 +15,10 @@ public class IndexController {
     }
 
     @GetMapping("/cliente/dashboard")
-    public String clienteDashboard(Model model) { // Adicionado Model como parâmetro
+    public String clienteDashboard(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String clienteCpf = authentication.getName(); // O CPF é o 'name' do Principal no UserDetailsServiceImpl
-        model.addAttribute("clienteCpf", clienteCpf); // ATENÇÃO AQUI: Passando o CPF para o modelo
+        String clienteCpf = authentication.getName();
+        model.addAttribute("clienteCpf", clienteCpf);
         return "dashboard-cliente";
     }
-
-    // REMOVA OU COMENTE ESTE MÉTODO, pois ele agora está no AdminController
-    /*
-    @GetMapping("/admin/dashboard")
-    public String adminDashboard() {
-        return "admin-dashboard";
-    }
-    */
 }

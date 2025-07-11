@@ -17,9 +17,9 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
-    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler; // <--- INJETE AQUI
+    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
-    public SecurityConfig(UserDetailsService userDetailsService, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) { // <--- E NO CONSTRUTOR
+    public SecurityConfig(UserDetailsService userDetailsService, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) {
         this.userDetailsService = userDetailsService;
         this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
     }
@@ -50,8 +50,7 @@ public class SecurityConfig {
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                // .defaultSuccessUrl("/cliente/dashboard", true) // <--- REMOVA OU COMENTE ESTA LINHA
-                .successHandler(customAuthenticationSuccessHandler) // <--- ADICIONE ESTA LINHA
+                .successHandler(customAuthenticationSuccessHandler)
                 .permitAll()
             )
             .logout(logout -> logout

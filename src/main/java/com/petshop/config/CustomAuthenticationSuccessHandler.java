@@ -1,4 +1,4 @@
-package com.petshop.config; // Ou com.petshop.security;
+package com.petshop.config;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,11 +19,11 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                                         Authentication authentication) throws IOException, ServletException {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
-        String redirectUrl = "/"; // URL padrão caso não encontre papel específico
+        String redirectUrl = "/";
 
         for (GrantedAuthority grantedAuthority : authorities) {
             if (grantedAuthority.getAuthority().equals("ROLE_ADMIN")) {
-                redirectUrl = "/admin/dashboard"; // Ou para /admin/servicos, ou para uma página de menu do admin
+                redirectUrl = "/admin/dashboard";
                 break;
             } else if (grantedAuthority.getAuthority().equals("ROLE_CLIENTE")) {
                 redirectUrl = "/cliente/dashboard";

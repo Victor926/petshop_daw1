@@ -89,21 +89,17 @@ INSERT INTO SERVICO (tipo, preco) VALUES ('Banho e Tosa', 75.00);
 INSERT INTO SERVICO (tipo, preco) VALUES ('Consulta Veterinária', 120.00);
 INSERT INTO SERVICO (tipo, preco) VALUES ('Vacinação V8', 90.00);
 
--- Inserindo Horários Disponíveis (Para serem selecionados pelo cliente)
--- Note: A data e hora devem ser FUTURAS em relação ao momento atual. Ajuste conforme necessário.
--- Use o formato 'YYYY-MM-DD HH:MM:SS' para TIMESTAMP no SQL
--- Horário para Maria Funcionária, para Banho e Tosa
 INSERT INTO HORARIO_DISPONIVEL (funcionario_cpf, servico_id, data_hora_inicio, data_hora_fim, ocupado)
-VALUES ('55566677788', (SELECT id FROM SERVICO WHERE tipo = 'Banho e Tosa'), '2025-07-10 09:00:00', '2025-07-10 10:00:00', FALSE);
+VALUES ('55566677788', (SELECT id FROM SERVICO WHERE tipo = 'Banho e Tosa'), '2025-07-13 09:00:00', '2025-07-13 10:00:00', FALSE);
 
 -- Horário para Dr. Animal, para Consulta Veterinária
 INSERT INTO HORARIO_DISPONIVEL (funcionario_cpf, servico_id, data_hora_inicio, data_hora_fim, ocupado)
-VALUES ('99988877766', (SELECT id FROM SERVICO WHERE tipo = 'Consulta Veterinária'), '2025-07-10 10:00:00', '2025-07-10 11:00:00', FALSE);
+VALUES ('99988877766', (SELECT id FROM SERVICO WHERE tipo = 'Consulta Veterinária'), '2025-07-13 10:00:00', '2025-07-13 11:00:00', FALSE);
 
 -- Outro Horário para Maria Funcionária, genérico (sem serviço específico)
 INSERT INTO HORARIO_DISPONIVEL (funcionario_cpf, servico_id, data_hora_inicio, data_hora_fim, ocupado)
-VALUES ('55566677788', NULL, '2025-07-10 11:00:00', '2025-07-10 12:00:00', FALSE);
+VALUES ('55566677788', NULL, '2025-07-13 11:00:00', '2025-07-13 12:00:00', FALSE);
 
 -- Um horário que já está ocupado (para testar a validação/não aparecer na lista do cliente)
 INSERT INTO HORARIO_DISPONIVEL (funcionario_cpf, servico_id, data_hora_inicio, data_hora_fim, ocupado)
-VALUES ('99988877766', (SELECT id FROM SERVICO WHERE tipo = 'Vacinação V8'), '2025-07-08 14:00:00', '2025-07-08 15:00:00', TRUE);
+VALUES ('99988877766', (SELECT id FROM SERVICO WHERE tipo = 'Vacinação V8'), '2025-07-13 14:00:00', '2025-07-13 15:00:00', TRUE);

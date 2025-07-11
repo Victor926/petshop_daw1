@@ -32,10 +32,9 @@ public class Atendimento {
     @Column(nullable = false)
     private String status;
 
-    @Column(columnDefinition = "boolean default false") // Garante que o valor padrão seja false
-    private boolean confirmado = false; // Inicializa para evitar null
+    @Column(columnDefinition = "boolean default false")
+    private boolean confirmado = false; 
 
-    // Removido: private String observacoes; // Campo de observações removido
 
     // Getters e Setters
     
@@ -48,7 +47,7 @@ public class Atendimento {
         this.id = id;
     }
 
-    // Cliente
+
     public Cliente getCliente() {
         return cliente;
     }
@@ -57,7 +56,7 @@ public class Atendimento {
         this.cliente = cliente;
     }
 
-    // Pet
+
     public Pet getPet() {
         return pet;
     }
@@ -66,7 +65,6 @@ public class Atendimento {
         this.pet = pet;
     }
 
-    // Funcionario
     public Funcionario getFuncionario() {
         return funcionario;
     }
@@ -75,7 +73,7 @@ public class Atendimento {
         this.funcionario = funcionario;
     }
 
-    // Servico
+
     public Servico getServico() {
         return servico;
     }
@@ -84,7 +82,7 @@ public class Atendimento {
         this.servico = servico;
     }
 
-    // Data/Hora
+
     public LocalDateTime getDataHora() {
         return dataHora;
     }
@@ -93,7 +91,7 @@ public class Atendimento {
         this.dataHora = dataHora;
     }
 
-    // Status
+
     public String getStatus() {
         return status;
     }
@@ -102,7 +100,7 @@ public class Atendimento {
         this.status = status;
     }
 
-    // Confirmado
+
     public boolean isConfirmado() {
         return confirmado;
     }
@@ -110,8 +108,4 @@ public class Atendimento {
     public void setConfirmado(boolean confirmado) {
         this.confirmado = confirmado;
     }
-
-    // Removido: Getters e Setters para observacoes
-    // public String getObservacoes() { return observacoes; }
-    // public void setObservacoes(String observacoes) { this.observacoes = observacoes; }
 }

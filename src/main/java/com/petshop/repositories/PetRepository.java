@@ -8,10 +8,6 @@ import org.springframework.transaction.annotation.Transactional; // Importar
 @Repository
 public interface PetRepository extends JpaRepository<Pet, Long> {
 
-    // Adicione este método para deletar pets por CPF do dono
     @Transactional
     void deleteByDonoCpf(String donoCpf);
-    
-    // Você também pode ter:
-    // List<Pet> findByDonoCpf(String donoCpf);
 }
